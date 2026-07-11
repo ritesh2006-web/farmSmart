@@ -1,0 +1,30 @@
+# Dependencies
+**/node_modules/
+
+# Build files
+**/dist/
+**/build/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# Coverage
+coverage/
+
+# Vite
+.vite
+
+# IDE
+.vscode/
+.idea/
+
+# npm
+npm-debug.log*
