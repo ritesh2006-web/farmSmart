@@ -3,7 +3,7 @@ import axios from 'axios'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import DashboardLayout from '../components/dashboard/DashboardLayout'
 function Dashboard() {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
   const [totalCrops, setTotalCrops] = useState(0)
   const [avgHealth, setAvgHealth] = useState(0)
   const [bestMandi, setBestMandi] = useState(0)
