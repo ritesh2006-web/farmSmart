@@ -1,168 +1,335 @@
-# FarmSmart 🌾
+# 🌾 FarmSmart
 
-FarmSmart is a full-stack smart agriculture platform designed to empower farmers with data-driven insights. It provides real-time weather alerts, localized market commodity (mandi) prices, crop health diaries, secure user management, and premium payment subscription flows. The platform is designed with scalability in mind, using a microservices-inspired architecture that is fully dockerized.
+> **A modern full-stack smart agriculture platform that empowers farmers with real-time weather updates, live mandi prices, crop management, health tracking, and AI-powered farming insights.**
 
----
-
-## 🚀 Key Features
-
-*   **🔒 Secure Authentication & User Profiles:** Register/login with password hashing (Bcrypt), JSON Web Tokens (JWT), and a secure OTP-based password recovery flow via Nodemailer.
-*   **💳 Premium Subscription Integration:** Monetization flow enabled by integrated **Razorpay** payment gateway for premium platform features (₹299 sign-up fee).
-*   **🌱 Crop Lifecycle Tracking (CRUD):** Log farm plots, specify soil types, monitor land area, and record sowing dates.
-*   **📸 Crop Health Logger (Diary):** Capture crop milestones and track health status with custom notes, health scores, and image uploads managed by **Cloudinary**.
-*   **📈 Real-Time Mandi Prices:** Live lookup of crop prices fetched directly from the **Gov of India API** (`api.data.gov.in`), optimized with low-latency caching (`node-cache`).
-*   **🌤️ Localized Weather Alerts:** Instant weather updates based on Indian pincodes, fetched from **OpenWeatherMap API**.
-*   **🧠 Intelligence Center (Upcoming ML Features):** 
-    *   *Yield Predictor:* Estimate yield based on crop type, soil type, and fertilizer metrics.
-    *   *Disease Detector:* Fungal/bacterial disease identification from leaf image uploads. *(Front-end simulated, Python ML-service integration under development).*
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-20-green?logo=node.js)
+![Express](https://img.shields.io/badge/Express-5-black?logo=express)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
-## 🛠️ Tech Stack
+## 📖 Overview
 
-### Frontend
-*   **Framework:** React (Vite-powered, SPA routing with `react-router-dom`)
-*   **Styling:** Modern Tailwind CSS
-*   **State Management:** React Context API
+FarmSmart is a full-stack smart agriculture platform built to help farmers make data-driven decisions. The platform provides live weather forecasts, real-time mandi prices, crop lifecycle management, crop health tracking, secure authentication, and premium subscription support.
 
-### Backend
-*   **Runtime:** Node.js (ES Modules syntax)
-*   **Framework:** Express.js
-*   **Database:** PostgreSQL (with `pg` pooling)
-*   **Caching:** `node-cache` (saves Gov API and OpenWeather API rates)
-*   **Media Uploads:** Cloudinary API
-
-### Infrastructure & DevOps
-*   **Containers:** Docker & Docker Compose (Frontend & Backend containers)
-*   **Reverse Proxy / Web Server:** Nginx (built into frontend container)
+The project follows a scalable architecture with separate React and Express applications, containerized using Docker and Docker Compose.
 
 ---
 
-## 📁 Repository Structure
+# 📸 Screenshots
+
+
+## 🏠 Landing Page
+
+![Landing](screenshots/home.png)
+
+---
+
+## 📊 Dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
+---
+
+## 🌱 My Crops
+
+![My Crops](screenshots/crops.png)
+
+---
+
+## 📸 Crop Health Logger
+
+![Crop Health](screenshots/health.png)
+
+---
+
+## 💹 Live Mandi Prices
+
+![Mandi Prices](screenshots/mandi.png)
+
+---
+## 💹 ML Prediction
+
+![ML Prediction](screenshots/ml-predictor.png)
+
+---
+
+## ✨ Features
+
+- ✅ Secure JWT Authentication
+- ✅ OTP-based Password Recovery (Nodemailer)
+- ✅ Razorpay Payment Integration
+- ✅ Crop Management (CRUD)
+- ✅ Crop Health Diary with Image Uploads
+- ✅ Cloudinary Image Storage
+- ✅ Live Weather Updates (OpenWeatherMap)
+- ✅ Live Mandi Prices (Government of India API)
+- ✅ Dockerized Full-Stack Deployment
+- 🔄 AI Disease Detection *(Coming Soon)*
+- 🔄 Crop Yield Prediction *(Coming Soon)*
+
+---
+
+# 🏗️ System Architecture
+
+```text
+                 Browser
+                     │
+                     ▼
+          React Frontend (Docker)
+                     │
+               REST API Calls
+                     ▼
+         Express Backend (Docker)
+                     │
+     PostgreSQL Database + External APIs
+                     │
+        ├── OpenWeather API
+        ├── Government Data API
+        ├── Cloudinary
+        └── Razorpay
+```
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+
+- React (Vite)
+- React Router DOM
+- Tailwind CSS
+- React Context API
+- Axios
+
+## Backend
+
+- Node.js
+- Express.js
+- PostgreSQL
+- JWT Authentication
+- Bcrypt
+- Nodemailer
+- Node Cache
+- Cloudinary
+- Razorpay
+
+## DevOps
+
+- Docker
+- Docker Compose
+- Nginx
+
+---
+
+# 🌐 External APIs
+
+- 🌦 OpenWeatherMap API
+- 📈 Government of India Mandi Price API
+- ☁️ Cloudinary API
+- 💳 Razorpay API
+
+---
+
+# 📁 Repository Structure
 
 ```text
 FarmSmart/
-├── backend/            # Express.js REST API
+│
+├── backend/
 │   ├── src/
-│   │   ├── config/     # Database configurations (PostgreSQL Pool)
-│   │   ├── controllers/# Business logic (auth, crop, log, mandi, weather, payment)
-│   │   ├── middleware/ # Auth validation, Multer image upload
-│   │   └── routes/     # Express route definitions
-│   └── Dockerfile
-├── frontend/           # React SPA
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   └── routes/
+│   ├── Dockerfile
+│   └── package.json
+│
+├── frontend/
 │   ├── src/
-│   │   ├── components/ # Shared UI & Dashboard layout
-│   │   ├── pages/      # Views (Dashboard, Health Log, Predictions, Prices)
-│   │   └── App.jsx     # App entry & routes
-│   ├── Nginx.conf      # Container reverse proxy setup
-│   └── Dockerfile
-├── ml-service/         # Empty structure (reserved for Flask/FastAPI ML API)
-├── docker-compose.yml  # Orchestrates full-stack deployment
-└── sqlScript.sql       # Database schema initialization script
+│   ├── public/
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   └── package.json
+│
+├── screenshots/
+│
+├── docker-compose.yml
+├── sqlScript.sql
+└── README.md
 ```
 
 ---
 
-## ⚙️ Local Setup Instructions
+# ⚙️ Installation
 
-### Prerequisites
-*   Node.js (v18+)
-*   PostgreSQL
-*   Docker & Docker Compose (optional, for containerized run)
+## Prerequisites
 
-### 1. Database Setup
-Create a PostgreSQL database and run the schema setup in `sqlScript.sql` or use your DBMS to set up the tables:
-```sql
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) UNIQUE NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    pincode VARCHAR(10),
-    state VARCHAR(100),
-    is_paid BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT NOW()
-);
+- Node.js 18+
+- PostgreSQL
+- Docker Desktop (Optional)
 
-CREATE TABLE crops (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    crop_name VARCHAR(100) NOT NULL,
-    soil_type VARCHAR(100),
-    area_acres NUMERIC,
-    sowing_date DATE,
-    created_at TIMESTAMP DEFAULT NOW()
-);
+---
 
-CREATE TABLE crop_logs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    crop_id UUID REFERENCES crops(id) ON DELETE CASCADE,
-    date TIMESTAMP DEFAULT NOW(),
-    health_score INT,
-    notes TEXT,
-    photo_url TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
-);
+## 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/ritesh2006-web/FarmSmart.git
+
+cd FarmSmart
 ```
 
-### 2. Environment Variables configuration
-Create a `.env` file in the `backend/` directory referencing `.env.example`:
+---
+
+## 2️⃣ Setup PostgreSQL
+
+Create a PostgreSQL database.
+
+Run
+
+```sql
+sqlScript.sql
+```
+
+to create the required tables.
+
+---
+
+## 3️⃣ Configure Environment Variables
+
+### Backend
+
+Create
+
+```text
+backend/.env
+```
+
 ```env
-DATABASE_URL=postgresql://<username>:<password>@localhost:5432/<dbname>
-JWT_SECRET=your_jwt_secret
+DATABASE_URL=postgresql://<username>:<password>@localhost:5432/<database>
+
+JWT_SECRET=your_secret
+
 JWT_EXPIRES_IN=1d
+
 PORT=5000
 
-# Nodemailer SMTP settings (for OTP)
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-gmail-app-password
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
 
-# Third-Party APIs
-OPENWEATHER_API_KEY=your_openweather_key
-DATA_GOV_API_KEY=your_government_data_portal_key
-CLOUDINARY_CLOUD_NAME=your_cloudinary_name
-CLOUDINARY_API_KEY=your_cloudinary_key
-CLOUDINARY_API_SECRET=your_cloudinary_secret
+OPENWEATHER_API_KEY=your_key
 
-# Razorpay Sandbox Credentials
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+DATA_GOV_API_KEY=your_key
+
+CLOUDINARY_CLOUD_NAME=your_name
+CLOUDINARY_API_KEY=your_key
+CLOUDINARY_API_SECRET=your_secret
+
+RAZORPAY_KEY_ID=your_key
+RAZORPAY_KEY_SECRET=your_secret
 ```
 
-Create a `.env` in `frontend/` directory:
+---
+
+### Frontend
+
+Create
+
+```text
+frontend/.env
+```
+
 ```env
 VITE_API_URL=http://localhost:5000
 ```
 
-### 3. Run Locally
+---
 
-#### Running with Docker (Recommended)
-From the root directory, simply run:
+# 🐳 Running with Docker (Recommended)
+
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
-*   Frontend will be available at: `http://localhost:3000`
-*   Backend will be available at: `http://localhost:5000`
 
-#### Running Manually
-**Backend:**
+Frontend
+
+```
+http://localhost:3000
+```
+
+Backend
+
+```
+http://localhost:5000
+```
+
+---
+
+# 💻 Running Without Docker
+
+### Backend
+
 ```bash
 cd backend
-npm install
-npm start
-```
 
-**Frontend:**
-```bash
-cd frontend
 npm install
+
 npm run dev
 ```
 
 ---
 
-## 🔮 Future Roadmap
-*   **ML Backend Integration (`ml-service`):** Hook up a Flask/FastAPI backend containing a custom-trained TensorFlow/PyTorch model for crop disease classification.
-*   **Yield Regression Model:** Deploy a Scikit-Learn regression model inside `ml-service` to output accurate yield figures by factoring in historic regional rainfall and nitrogen-phosphorus-potassium (NPK) ratios.
-*   **Multilingual Support:** Add regional languages translation options for non-English speaking farmers.
+### Frontend
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+---
+
+# 🔐 Security
+
+- Password hashing using Bcrypt
+- JWT Authentication
+- Protected API Routes
+- Secure Environment Variables
+- Dockerized Deployment
+
+---
+
+# 🚀 Future Roadmap
+
+- [x] User Authentication
+- [x] Crop Management
+- [x] Weather Integration
+- [x] Mandi Price Integration
+- [x] Razorpay Payment Gateway
+- [x] Docker Support
+- [ ] ML Disease Detection
+- [ ] Crop Yield Prediction
+- [ ] SMS Notifications
+- [ ] Multi-language Support
+- [ ] Farmer Community Forum
+
+---
+
+# 👨‍💻 Author
+
+**Ritesh Puri**
+
+B.Tech Student | Full Stack Developer
+
+GitHub: https://github.com/ritesh2006-web
+
+---
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
