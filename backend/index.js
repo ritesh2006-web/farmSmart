@@ -7,6 +7,8 @@ import logRoutes from './src/routes/logRoutes.js'
 import mandiRoutes from './src/routes/mandiRoutes.js'
 import weatherRoutes from './src/routes/weatherRoute.js'
 import paymentRoutes from './src/routes/paymentRoutes.js'
+import geminiRoutes from './src/routes/geminiRoutes.js'
+import fs from 'fs'
 
 
 dotenv.config()
@@ -24,6 +26,12 @@ app.use('/api/crops', logRoutes)
 app.use('/api/data', mandiRoutes)
 app.use('/api', weatherRoutes)
 app.use('/api/payment', paymentRoutes)
+app.use('/api/gemini', geminiRoutes)
+
+// Ensure uploads directory exists for multer (disease detection images)
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads')
+}
 
 
 app.get("/", (req, res) => {

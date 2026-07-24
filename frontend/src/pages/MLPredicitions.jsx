@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import DashboardLayout from '../components/dashboard/DashboardLayout.jsx'
+import api from '../services/axios.js'
 
 export default function MLPredicitions() {
   // Yield Predictor States
@@ -7,61 +8,100 @@ export default function MLPredicitions() {
   const [soil, setSoil] = useState('Alluvial (Loamy)')
   const [fertilizer, setFertilizer] = useState('120')
   const [isPredicting, setIsPredicting] = useState(false)
-  const [predictionResult, setPredictionResult] = useState({
-    yieldVal: '42.5',
-    confidence: '95',
-    visible: true
-  })
+  const [predictionResult, setPredictionResult] = useState(null)
+  const [predictionError, setPredictionError] = useState(null)
 
   // Disease Detector States
   const [imagePreview, setImagePreview] = useState(null)
+  const [selectedFile, setSelectedFile] = useState(null)
   const [isDetecting, setIsDetecting] = useState(false)
   const [detectionResult, setDetectionResult] = useState(null)
+  const [detectionError, setDetectionError] = useState(null)
 
-  const handlePredict = (e) => {
+  // ─── Yield Prediction ─────────────────────────────────────────
+  // Sends crop, soil, and fertilizer data to the backend, which
+  // forwards it to Gemini API and returns a JSON prediction.
+  const handlePredict = async (e) => {
     e.preventDefault()
     setIsPredicting(true)
-    // Simulate API call
-    setTimeout(() => {
-      // Generate some dummy data based on input
-      const fert = parseFloat(fertilizer) || 100
-      let baseYield = 40
-      if (crop.includes('Rice')) baseYield = 55
-      else if (crop.includes('Maize')) baseYield = 48
-      else if (crop.includes('Cotton')) baseYield = 25
-      
-      const calculatedYield = (baseYield + (fert - 120) * 0.05).toFixed(1)
-      const confidence = Math.floor(Math.random() * 10) + 88 // 88% to 98%
-      
-      setPredictionResult({
-        yieldVal: calculatedYield,
-        confidence: confidence.toString(),
-        visible: true
+    setPredictionError(null)
+    setPredictionResult(null)
+
+    try {
+      const response = await api.post('/gemini/predict-yield', {
+        crop,
+        soilType: soil,
+        fertilizer
       })
+
+      if (response.data.success) {
+        setPredictionResult({
+          yieldPercentage: response.data.prediction.yieldPercentage,
+          yieldValue: response.data.prediction.yieldValue,
+          unit: response.data.prediction.unit,
+          confidence: response.data.prediction.confidence,
+          summary: response.data.prediction.summary,
+          visible: true
+        })
+      } else {
+        setPredictionError('Prediction failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('Yield prediction error:', error)
+      setPredictionError(
+        error.response?.data?.message || 'Failed to get prediction. Please try again.'
+      )
+    } finally {
       setIsPredicting(false)
-    }, 800)
+    }
   }
 
-  const handleImageChange = (e) => {
+  // ─── Disease Detection ────────────────────────────────────────
+  // When user selects a leaf image, we store it and show preview.
+  // Then send it to the backend via FormData, which forwards
+  // the base64 image to Gemini Vision for disease analysis.
+  const handleImageChange = async (e) => {
     const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result)
-        setIsDetecting(true)
-        // Simulate detection
-        setTimeout(() => {
-          setDetectionResult({
-            disease: 'Wheat Rust',
-            confidence: '88',
-            description: 'Fungal infection detected primarily on leaf margins.',
-            treatment: 'Apply Propiconazole 25% EC',
-            dosage: '200ml per acre mixed with 200 liters of water.'
-          })
-          setIsDetecting(false)
-        }, 1200)
+    if (!file) return
+
+    // Show preview
+    const reader = new FileReader()
+    reader.onloadend = () => setImagePreview(reader.result)
+    reader.readAsDataURL(file)
+
+    // Store the file and start detection
+    setSelectedFile(file)
+    setIsDetecting(true)
+    setDetectionResult(null)
+    setDetectionError(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('leafImage', file)
+
+      const response = await api.post('/gemini/detect-disease', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+
+      if (response.data.success) {
+        setDetectionResult({
+          disease: response.data.detection.diseaseName,
+          confidence: response.data.detection.confidence,
+          description: response.data.detection.description,
+          treatment: response.data.detection.medicine,
+          dosage: response.data.detection.dosage,
+          prevention: response.data.detection.prevention
+        })
+      } else {
+        setDetectionError('Disease detection failed. Please try again.')
       }
-      reader.readAsDataURL(file)
+    } catch (error) {
+      console.error('Disease detection error:', error)
+      setDetectionError(
+        error.response?.data?.message || 'Failed to detect disease. Please try again.'
+      )
+    } finally {
+      setIsDetecting(false)
     }
   }
 
@@ -85,7 +125,7 @@ export default function MLPredicitions() {
               Intelligence Center
             </h1>
             <p className="text-sm text-gray-500 font-medium">
-              Advanced machine learning models for yield prediction and disease detection.
+              Powered by Google Gemini AI — real-time yield prediction and disease detection.
             </p>
           </div>
         </div>
@@ -101,6 +141,7 @@ export default function MLPredicitions() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 00-2-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
                 </svg>
                 <h2 className="text-xl font-bold text-gray-800">Yield Predictor</h2>
+                <span className="ml-auto text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200">Gemini AI</span>
               </div>
 
               {/* Form */}
@@ -181,17 +222,36 @@ export default function MLPredicitions() {
             </div>
 
             {/* Prediction Result Section */}
-            {predictionResult.visible && (
-              <div className="mt-6 pt-6 border-t border-gray-100">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Estimated Yield</p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-4xl font-extrabold text-green-800">{predictionResult.yieldVal}</span>
-                  <span className="text-sm font-semibold text-gray-500">qtl/acre</span>
+            {predictionError && (
+              <div className="mt-6 pt-4 border-t border-red-100">
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 font-medium">
+                  ⚠️ {predictionError}
                 </div>
+              </div>
+            )}
+
+            {predictionResult && predictionResult.visible && (
+              <div className="mt-6 pt-6 border-t border-gray-100">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Yield Performance</p>
+                <div className="flex items-baseline gap-1 mt-1">
+                  <span className="text-4xl font-extrabold text-green-800">{predictionResult.yieldPercentage}%</span>
+                  <span className="text-sm font-semibold text-gray-500">of ideal yield</span>
+                </div>
+
+                <div className="mt-2 flex items-baseline gap-1">
+                  <span className="text-lg font-bold text-gray-700">{predictionResult.yieldValue}</span>
+                  <span className="text-xs font-semibold text-gray-400">{predictionResult.unit}</span>
+                </div>
+
+                {predictionResult.summary && (
+                  <p className="text-xs text-gray-500 font-medium mt-2 bg-green-50 rounded-lg p-2.5 border border-green-100">
+                    💡 {predictionResult.summary}
+                  </p>
+                )}
 
                 <div className="mt-4">
                   <div className="flex justify-between text-xs font-bold text-gray-500 mb-1">
-                    <span>Prediction Confidence</span>
+                    <span>AI Confidence</span>
                     <span className="text-amber-800 font-extrabold">{predictionResult.confidence}%</span>
                   </div>
                   <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
@@ -214,6 +274,7 @@ export default function MLPredicitions() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0a8 8 0 11-16 0 8 8 0 0116 0z" />
                 </svg>
                 <h2 className="text-xl font-bold text-gray-800">Disease Detector</h2>
+                <span className="ml-auto text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200">Gemini Vision</span>
               </div>
 
               {/* Upload Leaf Area */}
@@ -259,7 +320,13 @@ export default function MLPredicitions() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <p className="text-xs font-bold text-gray-500 mt-2">Analyzing leaf image...</p>
+                  <p className="text-xs font-bold text-gray-500 mt-2">Gemini AI is analyzing your leaf image...</p>
+                </div>
+              )}
+
+              {detectionError && !isDetecting && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 font-medium mt-4">
+                  ⚠️ {detectionError}
                 </div>
               )}
 
@@ -282,10 +349,10 @@ export default function MLPredicitions() {
                     </span>
                   </div>
 
-                  {/* Treatment Card */}
+                  {/* Treatment Card — Medicine Name & Dosage */}
                   <div className="bg-white border-l-4 border-amber-500 rounded-xl p-4 mt-4 shadow-sm">
                     <p className="text-[10px] font-extrabold text-amber-700 uppercase tracking-widest flex items-center gap-1">
-                      🌾 Recommended Treatment
+                      💊 Recommended Medicine
                     </p>
                     <p className="text-sm font-extrabold text-gray-800 mt-1">
                       {detectionResult.treatment}
@@ -294,12 +361,20 @@ export default function MLPredicitions() {
                       {detectionResult.dosage}
                     </p>
                   </div>
+
+                  {/* Prevention Tips */}
+                  {detectionResult.prevention && (
+                    <div className="bg-green-50 border border-green-100 rounded-xl p-3 mt-3">
+                      <p className="text-[10px] font-extrabold text-green-700 uppercase tracking-widest">🛡️ Prevention</p>
+                      <p className="text-xs text-gray-600 font-medium mt-1">{detectionResult.prevention}</p>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {!isDetecting && !detectionResult && (
+              {!isDetecting && !detectionResult && !detectionError && (
                 <div className="border border-dashed border-gray-200 rounded-2xl p-6 text-center text-gray-400 bg-gray-50/50 mt-4">
-                  <p className="text-xs font-semibold">Upload a crop leaf photograph to perform disease detection analysis.</p>
+                  <p className="text-xs font-semibold">Upload a crop leaf photograph to perform AI-powered disease detection.</p>
                 </div>
               )}
             </div>

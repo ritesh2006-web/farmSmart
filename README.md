@@ -68,8 +68,8 @@ The project follows a scalable architecture with separate React and Express appl
 - ✅ Live Weather Updates (OpenWeatherMap)
 - ✅ Live Mandi Prices (Government of India API)
 - ✅ Dockerized Full-Stack Deployment
-- 🔄 AI Disease Detection *(Coming Soon)*
-- 🔄 Crop Yield Prediction *(Coming Soon)*
+- ✅ AI Disease Detection
+- ✅ Crop Yield Prediction
 
 ---
 
@@ -90,6 +90,8 @@ The project follows a scalable architecture with separate React and Express appl
         ├── OpenWeather API
         ├── Government Data API
         ├── Cloudinary
+        ├── Hugging Face API
+        ├── Groq API
         └── Razorpay
 ```
 
@@ -127,10 +129,13 @@ The project follows a scalable architecture with separate React and Express appl
 
 # 🌐 External APIs
 
-- 🌦 OpenWeatherMap API
-- 📈 Government of India Mandi Price API
-- ☁️ Cloudinary API
-- 💳 Razorpay API
+- OpenWeatherMap API
+- Government of India Mandi Price API
+- Cloudinary API
+- Razorpay API
+- Hugging Face API
+- Groq API
+
 
 ---
 
@@ -144,6 +149,7 @@ FarmSmart/
 │   │   ├── config/
 │   │   ├── controllers/
 │   │   ├── middleware/
+│   │   ├── services/
 │   │   └── routes/
 │   ├── Dockerfile
 │   └── package.json
@@ -230,6 +236,9 @@ CLOUDINARY_API_SECRET=your_secret
 
 RAZORPAY_KEY_ID=your_key
 RAZORPAY_KEY_SECRET=your_secret
+
+GROQ_API_KEY=your_key
+HF_API_KEY=your_key
 ```
 
 ---
@@ -306,25 +315,15 @@ npm run dev
 
 # 🚀 Future Roadmap
 
-- [x] User Authentication
-- [x] Crop Management
-- [x] Weather Integration
-- [x] Mandi Price Integration
-- [x] Razorpay Payment Gateway
-- [x] Docker Support
-- [ ] ML Disease Detection
-- [ ] Crop Yield Prediction
-- [ ] SMS Notifications
-- [ ] Multi-language Support
-- [ ] Farmer Community Forum
+- SMS Notifications
+- Multi-language Support
+- Farmer Community Forum
 
 ---
 
 # 👨‍💻 Author
 
 **Ritesh Puri**
-
-B.Tech Student | Full Stack Developer
 
 GitHub: https://github.com/ritesh2006-web
 
